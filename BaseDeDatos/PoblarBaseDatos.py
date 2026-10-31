@@ -1,10 +1,10 @@
 from datetime import date
 import firebase_admin
 from firebase_admin import credentials
-from modelos.gestorPenalizaciones import GestorPenalizaciones
+from modelos.GestorPenalizaciones import GestorPenalizaciones
 
-RUTA_CREDENCIALES = "credenciales.json"
-URL_BASE_DATOS = "https://TU-PROYECTO-default-rtdb.firebaseio.com/"
+RUTA_CREDENCIALES = "Credenciales.json"
+URL_BASE_DATOS = "https://proyecto-aula-clases-default-rtdb.firebaseio.com/"
 
 PENALIZACIONES_DE_PRUEBA = [
     {"fechaTarde": date(2026, 10, 21), "cumplida": True},   # miércoles
