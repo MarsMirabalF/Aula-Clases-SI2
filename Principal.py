@@ -3,7 +3,7 @@ import firebase_admin
 from firebase_admin import credentials
 from Estilos import COLOR_FONDO
 from Modelos.GestorPenalizaciones import GestorPenalizaciones
-from Vistas.PantallaInicio import PantallaHome
+from Vistas.PantallaInicio import PantallaInicio
 
 RUTA_CREDENCIALES = "Credenciales.json"
 URL_BASE_DATOS = "https://proyecto-aula-clases-default-rtdb.firebaseio.com/"
@@ -16,7 +16,7 @@ ventana.title("Sistemas de Información 2")
 ventana.geometry("480x240")
 ventana.configure(bg=COLOR_FONDO)
 
-pantallaHome = PantallaHome(ventana, GestorPenalizaciones())
-pantallaHome.pack(fill="both", expand=True)
+pantallaInicio = PantallaInicio(ventana, GestorPenalizaciones())
+pantallaInicio.pack(fill="both", expand=True)
 
 ventana.mainloop()
