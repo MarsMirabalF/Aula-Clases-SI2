@@ -2,8 +2,8 @@ from datetime import timedelta
 
 NOMBRES_DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"]
 DIAS_CLASE = [1, 2, 4]  # martes, miércoles, viernes
-HORA_INICIO = "19:00"
-HORA_FIN = "20:30"
+HORA_INICIO = "06:45"
+HORA_FIN = "08:15"
 
 
 class HorarioClases:
