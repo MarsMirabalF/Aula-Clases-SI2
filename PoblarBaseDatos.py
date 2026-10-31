@@ -1,7 +1,7 @@
 from datetime import date
 import firebase_admin
 from firebase_admin import credentials
-from modelos.GestorPenalizaciones import GestorPenalizaciones
+from Modelos.GestorPenalizaciones import GestorPenalizaciones
 
 RUTA_CREDENCIALES = "Credenciales.json"
 URL_BASE_DATOS = "https://proyecto-aula-clases-default-rtdb.firebaseio.com/"
