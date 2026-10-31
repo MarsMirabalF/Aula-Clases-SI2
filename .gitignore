@@ -1,0 +1,9 @@
+# Archivos con credenciales
+Credenciales.json
+
+# Dependencias
+node_modules/
+
+# Variables de entorno
+.env
+.env.*
