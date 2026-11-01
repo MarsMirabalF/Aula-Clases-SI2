@@ -74,3 +74,5 @@ class PantallaParticipacion(tk.Toplevel):
         self.marcoOpciones.pack_forget()
         self.botonNuevaParticipacion.pack_forget()
         self.botonParticipar.config(state="normal")
+        self.botonCorrecta.config(state="normal")
+        self.botonIncorrecta.config(state="normal")
