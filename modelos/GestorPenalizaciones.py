@@ -27,7 +27,7 @@ class GestorPenalizaciones:
                 "diaTarde": self.horarioClases.obtenerNombreDia(fechaTarde),
                 "fechaTarde": fechaTarde.isoformat(),
                 "proximaClase": (self.horarioClases.obtenerNombreDia(fechaProximaClase)
-                                 + " " + fechaProximaClase.isoformat()) if pendiente else "-",
+                                + " " + fechaProximaClase.isoformat()) if pendiente else "-",
                 "estado": registro["estado"]
             })
         return sorted(lista, key=lambda penalizacion: penalizacion["fechaTarde"])
