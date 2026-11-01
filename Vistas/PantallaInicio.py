@@ -3,6 +3,7 @@ from estilos import *
 from Vistas.PantallaPenalizaciones import PantallaPenalizaciones
 from Vistas.PantallaLectura import PantallaLectura
 from Vistas.PantallaParticipacion import PantallaParticipacion
+from Vistas.PantallaHistorialParticipacion import PantallaHistorialParticipacion
 
 
 class PantallaInicio(tk.Frame):
@@ -43,6 +44,15 @@ class PantallaInicio(tk.Frame):
             highlightbackground=COLOR_ACENTO, padx=16, pady=8)
         self.botonParticipacion.pack(padx=24, pady=(0, 24))
 
+        self.botonHistorialParticipacion = tk.Button(
+            self, text="Historial de participaciones",
+            command=self.abrirHistorialParticipacion, font=FUENTE_BOTON,
+            bg=COLOR_PRIMARIO, fg=COLOR_FONDO,
+            activebackground=COLOR_SECUNDARIO, activeforeground=COLOR_FONDO,
+            relief="flat", bd=0, cursor="hand2", highlightthickness=1,
+            highlightbackground=COLOR_ACENTO, padx=16, pady=8)
+        self.botonHistorialParticipacion.pack(padx=24, pady=(0, 24))
+
     def abrirPenalizaciones(self):
         PantallaPenalizaciones(self.padre, self.gestorPenalizaciones)
 
@@ -55,6 +65,9 @@ class PantallaInicio(tk.Frame):
 
     def abrirParticipacion(self):
         PantallaParticipacion(self.padre, self.gestorParticipacion)
+
+    def abrirHistorialParticipacion(self):
+        PantallaHistorialParticipacion(self.padre, self.gestorParticipacion)
 
     def cerrarSistema(self):
         if self.pantallaLecturas is not None and self.pantallaLecturas.winfo_exists():

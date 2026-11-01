@@ -16,7 +16,7 @@ firebase_admin.initialize_app(credencial, {"databaseURL": URL_BASE_DATOS})
 
 ventana = tk.Tk()
 ventana.title("Sistemas de Información 2")
-ventana.geometry("480x320")
+ventana.geometry("480x440")
 ventana.configure(bg=COLOR_FONDO)
 
 pantallaInicio = PantallaInicio(
