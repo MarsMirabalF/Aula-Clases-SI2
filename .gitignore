@@ -3,6 +3,7 @@ Credenciales.json
 
 # Dependencias
 node_modules/
+.venv/
 __pycache__/
 *.pyc
 

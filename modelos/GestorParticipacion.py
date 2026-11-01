@@ -5,9 +5,9 @@ from modelos.PreguntaClase import PreguntaClase
 
 class GestorParticipacion:
     PREGUNTAS = (
-        "¿Qué es un requisito funcional en un sistema de información?",
-        "¿Qué representa una tarjeta CRC?",
-        "¿Cuál es el objetivo de una prueba de aceptación?",
+        "¿Qué representa un diagrama de clases en UML?",
+        "¿Qué reunión de Scrum se realiza diariamente para revisar el avance del equipo?",
+        "¿Qué práctica de XP consiste en programar en parejas?",
     )
 
     def __init__(self):

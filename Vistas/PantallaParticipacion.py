@@ -7,7 +7,8 @@ class PantallaParticipacion(tk.Toplevel):
     def __init__(self, padre, gestorParticipacion):
         super().__init__(padre)
         self.gestorParticipacion = gestorParticipacion
-        self.pregunta = self.gestorParticipacion.obtenerPregunta()
+        self.indicePregunta = 0
+        self.pregunta = self.gestorParticipacion.obtenerPregunta(self.indicePregunta)
         self.title("Participación en clase")
         self.geometry("620x400")
         self.configure(bg=COLOR_FONDO)
@@ -34,9 +35,15 @@ class PantallaParticipacion(tk.Toplevel):
             self, text="", font=FUENTE_NORMAL, bg=COLOR_FONDO, fg=COLOR_PRIMARIO)
         self.etiquetaEstado.pack(padx=24, pady=(20, 8))
 
-    def crearBoton(self, texto, comando):
+        self.botonNuevaParticipacion = self.crearBoton(
+            "Volver a participar", self.volverAParticipar, self)
+        self.botonNuevaParticipacion.pack(padx=24, pady=8)
+        self.botonNuevaParticipacion.pack_forget()
+
+    def crearBoton(self, texto, comando, padre=None):
+        contenedor = padre or (self.marcoOpciones if hasattr(self, "marcoOpciones") else self)
         return tk.Button(
-            self.marcoOpciones if hasattr(self, "marcoOpciones") else self,
+            contenedor,
             text=texto, command=comando, font=FUENTE_BOTON, bg=COLOR_PRIMARIO,
             fg=COLOR_FONDO, activebackground=COLOR_SECUNDARIO,
             activeforeground=COLOR_FONDO, relief="flat", bd=0, cursor="hand2",
@@ -55,3 +62,15 @@ class PantallaParticipacion(tk.Toplevel):
         self.etiquetaEstado.config(text=mensaje, fg=color)
         self.botonCorrecta.config(state="disabled")
         self.botonIncorrecta.config(state="disabled")
+        self.botonNuevaParticipacion.pack(padx=24, pady=8)
+
+    def volverAParticipar(self):
+        self.indicePregunta += 1
+        self.pregunta = self.gestorParticipacion.obtenerPregunta(self.indicePregunta)
+        self.etiquetaPregunta.config(text=self.pregunta.mostrarPregunta())
+        self.etiquetaEstado.config(text="", fg=COLOR_PRIMARIO)
+        self.botonCorrecta.pack_forget()
+        self.botonIncorrecta.pack_forget()
+        self.marcoOpciones.pack_forget()
+        self.botonNuevaParticipacion.pack_forget()
+        self.botonParticipar.config(state="normal")
