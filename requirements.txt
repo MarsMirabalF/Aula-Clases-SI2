@@ -1,0 +1,3 @@
+# Dependencias directas del sistema; pip instala sus dependencias automaticamente.
+firebase-admin==7.7.0
+pymupdf==1.28.2

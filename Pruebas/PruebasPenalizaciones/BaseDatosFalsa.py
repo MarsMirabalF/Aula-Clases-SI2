@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from Modelos.GestorPenalizaciones import GestorPenalizaciones
+from modelos.GestorPenalizaciones import GestorPenalizaciones
 
 
 class ReferenciaFalsa:

@@ -3,6 +3,11 @@ Credenciales.json
 
 # Dependencias
 node_modules/
+__pycache__/
+*.pyc
+
+# Copias locales de lecturas importadas
+Archivos/Lecturas/*.pdf
 
 # Variables de entorno
 .env

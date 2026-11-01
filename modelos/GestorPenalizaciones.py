@@ -1,7 +1,7 @@
 from datetime import date
 from firebase_admin import db
-from Modelos.HorarioClases import HorarioClases
-from Modelos.Penalizacion import Penalizacion
+from modelos.HorarioClases import HorarioClases
+from modelos.Penalizacion import Penalizacion
 
 
 class GestorPenalizaciones:

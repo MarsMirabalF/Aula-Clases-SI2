@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from Estilos import *
+from estilos import *
 
 
 class PantallaPenalizaciones(tk.Toplevel):
