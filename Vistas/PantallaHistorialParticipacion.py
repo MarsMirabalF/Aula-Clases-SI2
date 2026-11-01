@@ -54,14 +54,6 @@ class PantallaHistorialParticipacion(tk.Toplevel):
         self.tablaHistorial.tag_configure("Incorrecta", foreground=COLOR_ERROR)
         self.tablaHistorial.pack(fill="both", expand=True, padx=1, pady=1)
 
-        self.botonActualizar = tk.Button(
-            self, text="Actualizar", command=self.actualizarTabla,
-            font=FUENTE_BOTON, bg=COLOR_PRIMARIO, fg=COLOR_FONDO,
-            activebackground=COLOR_SECUNDARIO, activeforeground=COLOR_FONDO,
-            relief="flat", bd=0, cursor="hand2", highlightthickness=1,
-            highlightbackground=COLOR_ACENTO, padx=16, pady=8)
-        self.botonActualizar.pack(anchor="e", padx=24, pady=(0, 16))
-
         self.actualizarTabla()
 
     def actualizarTabla(self):
