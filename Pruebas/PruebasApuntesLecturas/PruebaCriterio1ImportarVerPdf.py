@@ -4,37 +4,40 @@ from unittest.mock import patch
 
 import pymupdf
 
-from Pruebas.PruebasApuntesLecturas.BaseDatosFalsa import (
-    ReferenciaFalsa,
-    crearGestorConBaseFalsa,
-    crearPdf,
-)
+from Pruebas.PruebasApuntesLecturas.BaseDatosFalsa import ReferenciaFalsa, crearGestorConBaseFalsa, crearPdf
 
 
 class PruebaCriterio1ImportarVerPdf(unittest.TestCase):
     def setUp(self):
         self.gestor, self.registros, self.carpeta = crearGestorConBaseFalsa(self)
 
-    def testImportaUnaCopiaQueSigueDisponibleSinElOriginal(self):
-        original = crearPdf(self.carpeta / "original.pdf", "Contenido para leer")
+    def testImportaUnaLecturaPdf(self):
+        archivo = crearPdf(self.carpeta / "crc.pdf", "Responsabilidades y colaboradores")
 
-        lectura = self.gestor.agregarLectura("Lectura de clase", original)
-        original.unlink()
-        ruta = Path(self.gestor.obtenerRutaPdf(lectura["id"]))
+        lectura = self.gestor.agregarLectura("Tarjetas CRC", archivo)
 
-        self.assertTrue(ruta.is_relative_to(self.carpeta / "Archivos" / "Lecturas"))
-        self.assertEqual(self.gestor.listarLecturas()[0]["titulo"], "Lectura de clase")
-        with pymupdf.open(ruta) as documento:
+        self.assertEqual(self.gestor.listarLecturas()[0]["titulo"], "Tarjetas CRC")
+        with pymupdf.open(self.gestor.obtenerRutaPdf(lectura["id"])) as documento:
             self.assertEqual(documento.page_count, 1)
-            self.assertIn("Contenido para leer", documento[0].get_text())
+            self.assertIn("Responsabilidades y colaboradores", documento[0].get_text())
 
-    def testLecturasConElMismoTituloNoSobrescribenSusArchivos(self):
-        primera = self.gestor.agregarLectura(
-            "Tema", crearPdf(self.carpeta / "primera.pdf", "Primera lectura")
-        )
-        segunda = self.gestor.agregarLectura(
-            "Tema", crearPdf(self.carpeta / "segunda.pdf", "Segunda lectura")
-        )
+    def testGuardaUnaCopiaDelPdf(self):
+        original = crearPdf(self.carpeta / "crc.pdf", "Responsabilidades y colaboradores")
+        lectura = self.gestor.agregarLectura("Tarjetas CRC", original)
+
+        original.unlink()
+
+        ruta = Path(self.gestor.obtenerRutaPdf(lectura["id"]))
+        self.assertEqual(ruta.parent, self.carpeta / "Archivos" / "Lecturas")
+        with pymupdf.open(ruta) as documento:
+            self.assertIn("Responsabilidades y colaboradores", documento[0].get_text())
+
+    def testPermiteDosLecturasConElMismoTitulo(self):
+        archivo1 = crearPdf(self.carpeta / "primera.pdf", "Primera lectura")
+        archivo2 = crearPdf(self.carpeta / "segunda.pdf", "Segunda lectura")
+
+        primera = self.gestor.agregarLectura("Tarjetas CRC", archivo1)
+        segunda = self.gestor.agregarLectura("Tarjetas CRC", archivo2)
 
         self.assertNotEqual(primera["id"], segunda["id"])
         rutaPrimera = self.gestor.obtenerRutaPdf(primera["id"])
@@ -45,41 +48,45 @@ class PruebaCriterio1ImportarVerPdf(unittest.TestCase):
         with pymupdf.open(rutaSegunda) as documento:
             self.assertIn("Segunda lectura", documento[0].get_text())
 
-    def testRechazaUnPdfInvalidoOProtegidoSinRegistrarlo(self):
-        invalido = self.carpeta / "invalido.pdf"
-        invalido.write_text("Esto no es un PDF", encoding="utf-8")
-        protegido = crearPdf(self.carpeta / "protegido.pdf", protegido=True)
+    def testNoImportaUnPdfDanado(self):
+        archivo = self.carpeta / "crc.pdf"
+        archivo.write_text("Esto no es un PDF", encoding="utf-8")
 
-        for ruta in (invalido, protegido):
-            with self.subTest(archivo=ruta.name):
-                with self.assertRaises(ValueError):
-                    self.gestor.agregarLectura("Lectura", ruta)
+        with self.assertRaises(ValueError):
+            self.gestor.agregarLectura("Tarjetas CRC", archivo)
 
         self.assertEqual(self.gestor.listarLecturas(), [])
 
-    def testEliminaLaCopiaSiFirebaseNoPuedeRegistrarLaLectura(self):
-        original = crearPdf(self.carpeta / "original.pdf")
+    def testNoImportaUnPdfConContrasena(self):
+        archivo = crearPdf(self.carpeta / "crc.pdf", protegido=True)
+
+        with self.assertRaises(ValueError):
+            self.gestor.agregarLectura("Tarjetas CRC", archivo)
+
+        self.assertEqual(self.gestor.listarLecturas(), [])
+
+    def testBorraLaCopiaSiFallaElRegistro(self):
+        original = crearPdf(self.carpeta / "crc.pdf")
 
         with patch.object(ReferenciaFalsa, "set", side_effect=RuntimeError("Sin conexión")):
             with self.assertRaises(RuntimeError):
-                self.gestor.agregarLectura("Lectura", original)
+                self.gestor.agregarLectura("Tarjetas CRC", original)
 
         self.assertTrue(original.is_file())
         self.assertEqual(self.gestor.listarLecturas(), [])
         self.assertEqual(list((self.carpeta / "Archivos" / "Lecturas").glob("*.pdf")), [])
 
-    def testInformaCuandoLaCopiaImportadaYaNoExiste(self):
-        lectura = self.gestor.agregarLectura(
-            "Lectura", crearPdf(self.carpeta / "original.pdf")
-        )
+    def testAvisaSiFaltaElPdf(self):
+        archivo = crearPdf(self.carpeta / "crc.pdf")
+        lectura = self.gestor.agregarLectura("Tarjetas CRC", archivo)
         Path(self.gestor.obtenerRutaPdf(lectura["id"])).unlink()
 
         with self.assertRaises(FileNotFoundError):
             self.gestor.obtenerRutaPdf(lectura["id"])
 
-    def testImpideAbrirUnaRutaFueraDeLaCarpetaDeLecturas(self):
-        original = crearPdf(self.carpeta / "original.pdf")
-        lectura = self.gestor.agregarLectura("Lectura", original)
+    def testNoAbreUnPdfFueraDeLecturas(self):
+        original = crearPdf(self.carpeta / "crc.pdf")
+        lectura = self.gestor.agregarLectura("Tarjetas CRC", original)
         self.registros["lecturas"][lectura["id"]]["rutaArchivo"] = str(original)
 
         with self.assertRaises(ValueError):

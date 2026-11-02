@@ -1,35 +1,28 @@
 import unittest
-from copy import deepcopy
 from datetime import date
 
-from Pruebas.PruebasApuntesLecturas.BaseDatosFalsa import (
-    crearGestorConBaseFalsa,
-    crearPdf,
-)
+from Pruebas.PruebasApuntesLecturas.BaseDatosFalsa import crearGestorConBaseFalsa, crearPdf
 
 
 class PruebaCriterio3AsociarFechaLectura(unittest.TestCase):
     def setUp(self):
         self.gestor, self.registros, self.carpeta = crearGestorConBaseFalsa(self)
-        self.lectura = self.gestor.agregarLectura(
-            "Diseño de clases", crearPdf(self.carpeta / "clases.pdf")
-        )
+        archivo = crearPdf(self.carpeta / "crc.pdf")
+        self.lectura = self.gestor.agregarLectura("Tarjetas CRC", archivo)
 
-    def testAsociaElApunteConSuFechaYLectura(self):
+    def testAsociaLaFechaYLaLectura(self):
         apunte = self.gestor.registrarApunte(
-            "Mi resumen", date(2026, 10, 27), self.lectura["id"]
-        )
+            "Una clase tiene responsabilidades", date(2026, 10, 27), self.lectura["id"])
 
         self.assertEqual(apunte["fechaClase"], "2026-10-27")
         self.assertEqual(apunte["idLectura"], self.lectura["id"])
         mostrado = self.gestor.listarApuntes()[0]
-        self.assertEqual(mostrado["tituloLectura"], "Diseño de clases")
+        self.assertEqual(mostrado["tituloLectura"], "Tarjetas CRC")
         self.assertEqual(mostrado["diaClase"], "Martes")
 
-    def testPermiteCambiarLaFechaYLaLecturaDeUnApunte(self):
-        segunda = self.gestor.agregarLectura(
-            "Colaboraciones", crearPdf(self.carpeta / "colaboraciones.pdf")
-        )
+    def testCambiaLaFechaYLaLectura(self):
+        archivo = crearPdf(self.carpeta / "clases.pdf")
+        segunda = self.gestor.agregarLectura("Diagrama de clases", archivo)
         apunte = self.gestor.registrarApunte("Resumen", "2026-10-27", self.lectura["id"])
 
         self.gestor.editarApunte(apunte["id"], "Resumen", date(2026, 10, 29), segunda["id"])
@@ -37,25 +30,38 @@ class PruebaCriterio3AsociarFechaLectura(unittest.TestCase):
         guardado = self.gestor.listarApuntes()[0]
         self.assertEqual(guardado["fechaClase"], "2026-10-29")
         self.assertEqual(guardado["idLectura"], segunda["id"])
-        self.assertEqual(guardado["tituloLectura"], "Colaboraciones")
+        self.assertEqual(guardado["tituloLectura"], "Diagrama de clases")
         self.assertEqual(guardado["diaClase"], "Jueves")
 
-    def testRechazaFechasInvalidasYLecturasInexistentesSinGuardar(self):
-        antes = deepcopy(self.registros)
-        casos = [
-            ("2026-02-30", self.lectura["id"]),
-            ("fecha", self.lectura["id"]),
-            ("", self.lectura["id"]),
-            ("2026-10-27", "inexistente"),
-            ("2026-10-27", ""),
-        ]
+    def testNoGuardaConUnaFechaImposible(self):
+        with self.assertRaises(ValueError):
+            self.gestor.registrarApunte("Resumen", "2026-02-30", self.lectura["id"])
 
-        for fecha, idLectura in casos:
-            with self.subTest(fecha=fecha, idLectura=idLectura):
-                with self.assertRaises(ValueError):
-                    self.gestor.registrarApunte("Resumen", fecha, idLectura)
+        self.assertEqual(self.gestor.listarApuntes(), [])
 
-        self.assertEqual(self.registros, antes)
+    def testNoGuardaConUnaFechaInvalida(self):
+        with self.assertRaises(ValueError):
+            self.gestor.registrarApunte("Resumen", "fecha", self.lectura["id"])
+
+        self.assertEqual(self.gestor.listarApuntes(), [])
+
+    def testNoGuardaSinFecha(self):
+        with self.assertRaises(ValueError):
+            self.gestor.registrarApunte("Resumen", "", self.lectura["id"])
+
+        self.assertEqual(self.gestor.listarApuntes(), [])
+
+    def testNoGuardaConUnaLecturaInexistente(self):
+        with self.assertRaises(ValueError):
+            self.gestor.registrarApunte("Resumen", "2026-10-27", "inexistente")
+
+        self.assertEqual(self.gestor.listarApuntes(), [])
+
+    def testNoGuardaSinLectura(self):
+        with self.assertRaises(ValueError):
+            self.gestor.registrarApunte("Resumen", "2026-10-27", "")
+
+        self.assertEqual(self.gestor.listarApuntes(), [])
 
 
 if __name__ == "__main__":
