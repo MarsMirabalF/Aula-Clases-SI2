@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -13,6 +13,8 @@ sys.path.append(CARPETA_PROYECTO)
 
 from modelos.GestorPenalizaciones import GestorPenalizaciones
 from modelos.GestorApuntes import GestorApuntes
+from modelos.Tarea import Tarea
+from modelos.HistorialEntregas import HistorialEntregas
 
 RUTA_CREDENCIALES = os.path.join(CARPETA_PROYECTO, "Credenciales.json")
 
@@ -62,6 +64,18 @@ APUNTES_DE_PRUEBA = [
         "fechaClase": "2026-10-30",
         "texto": "Cada clase tiene responsabilidades concretas y colabora con otras clases.",
     },
+]
+
+
+TAREAS_DE_PRUEBA = [
+    {"numero": 1, "tema": "Historias de usuario", "horaLimite": "2026-10-27 23:59"},
+    {"numero": 2, "tema": "Tarjetas CRC", "horaLimite": "2026-10-30 23:59"},
+    {"numero": 3, "tema": "Diagrama de clases", "horaLimite": "2026-11-06 23:59"},
+]
+
+ENTREGAS_DE_PRUEBA = [
+    {"numero": 1, "fechaEntrega": datetime(2026, 10, 27, 21, 15)},
+    {"numero": 2, "fechaEntrega": datetime(2026, 10, 31, 8, 10)},
 ]
 
 
@@ -119,9 +133,29 @@ def poblarLecturasYApuntes(carpetaProyecto=None):
             existentes.add(clave)
 
 
+def poblarTareas():
+    tareas = {tarea.numero: tarea for tarea in Tarea.listarTareas()}
+    for ejemplo in TAREAS_DE_PRUEBA:
+        if ejemplo["numero"] not in tareas:
+            tarea = Tarea(ejemplo["numero"], ejemplo["tema"], ejemplo["horaLimite"])
+            tarea.guardar()
+            tareas[tarea.numero] = tarea
+
+    historial = HistorialEntregas()
+    existentes = {(entrega["tarea"], entrega["fechaEntrega"])
+                  for entrega in historial.mostrarEntregas()}
+    for ejemplo in ENTREGAS_DE_PRUEBA:
+        tarea = tareas[ejemplo["numero"]]
+        clave = ("Tarea " + str(tarea.numero) + " - " + tarea.tema, ejemplo["fechaEntrega"])
+        if clave not in existentes:
+            historial.guardar(tarea, ejemplo["fechaEntrega"])
+            existentes.add(clave)
+
+
 if __name__ == "__main__":
     credencial = credentials.Certificate(RUTA_CREDENCIALES)
     firebase_admin.initialize_app(credencial, {"databaseURL": URL_BASE_DATOS})
     poblarLecturasYApuntes()
     poblarPenalizaciones()
+    poblarTareas()
     print("Datos de ejemplo disponibles. Se conservaron los registros existentes.")
