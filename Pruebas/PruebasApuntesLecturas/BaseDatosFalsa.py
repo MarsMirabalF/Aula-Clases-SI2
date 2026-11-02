@@ -37,14 +37,9 @@ def crearGestorConBaseFalsa(prueba):
     return GestorApuntes(carpetaProyecto=carpeta), registros, carpeta
 
 
-def crearPdf(ruta, texto="Lectura de prueba", protegido=False):
-    ruta = Path(ruta)
+def crearPdf(ruta):
     with pymupdf.open() as documento:
         pagina = documento.new_page()
-        pagina.insert_text((72, 72), texto)
-        if protegido:
-            documento.save(str(ruta), encryption=pymupdf.PDF_ENCRYPT_AES_256,
-                           owner_pw="propietario", user_pw="lector")
-        else:
-            documento.save(str(ruta))
+        pagina.insert_text((72, 72), "Lectura de prueba")
+        documento.save(str(ruta))
     return ruta

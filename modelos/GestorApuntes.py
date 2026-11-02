@@ -1,12 +1,12 @@
 from modelos.Apunte import Apunte, convertirFechaClase
 from modelos.HorarioClases import HorarioClases
-from modelos.Lectura import Lectura, validarId
+from modelos.Lectura import Lectura
 
 
 class GestorApuntes:
     def __init__(self, carpetaProyecto=None):
         self.lectura = Lectura(carpetaProyecto)
-        self.apunte = Apunte(self.lectura)
+        self.apunte = Apunte()
         self.horarioClases = HorarioClases()
 
     def agregarLectura(self, titulo, rutaPdf):
@@ -26,9 +26,7 @@ class GestorApuntes:
 
     def listarApuntes(self, fechaClase=None, idLectura=None):
         fechaFiltro = convertirFechaClase(fechaClase) if fechaClase is not None else None
-        if idLectura is not None:
-            validarId(idLectura, "una lectura")
-        lecturas = {lectura["id"]: lectura for lectura in self.listarLecturas()}
+        titulos = {lectura["id"]: lectura["titulo"] for lectura in self.listarLecturas()}
         lista = []
         for apunte in self.apunte.listarApuntes():
             fecha = convertirFechaClase(apunte["fechaClase"])
@@ -36,9 +34,8 @@ class GestorApuntes:
                 continue
             if idLectura is not None and apunte["idLectura"] != idLectura:
                 continue
-            lectura = lecturas.get(apunte["idLectura"])
             lista.append({**apunte,
-                          "tituloLectura": lectura["titulo"] if lectura else "Lectura no disponible",
+                          "tituloLectura": titulos.get(apunte["idLectura"], "Lectura no disponible"),
                           "diaClase": self.horarioClases.obtenerNombreDia(fecha)})
         return sorted(lista, key=lambda apunte: (-convertirFechaClase(apunte["fechaClase"]).toordinal(),
                                                  apunte["tituloLectura"].casefold(), apunte["id"]))

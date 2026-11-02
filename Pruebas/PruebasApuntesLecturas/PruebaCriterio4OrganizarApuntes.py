@@ -1,63 +1,43 @@
 import unittest
 
-from Pruebas.PruebasApuntesLecturas.BaseDatosFalsa import crearGestorConBaseFalsa, crearPdf
+from Pruebas.PruebasApuntesLecturas.BaseDatosFalsa import crearGestorConBaseFalsa
 
 
 class PruebaCriterio4OrganizarApuntes(unittest.TestCase):
     def setUp(self):
-        self.gestor, self.registros, self.carpeta = crearGestorConBaseFalsa(self)
-        archivoCRC = crearPdf(self.carpeta / "crc.pdf")
-        archivoClases = crearPdf(self.carpeta / "clases.pdf")
-        self.lecturaCRC = self.gestor.agregarLectura("Tarjetas CRC", archivoCRC)
-        self.lecturaClases = self.gestor.agregarLectura("Diagrama de clases", archivoClases)
-        self.anterior = self.gestor.registrarApunte(
-            "Relaciones entre clases", "2026-10-20", self.lecturaClases["id"])
-        self.apunteCRC = self.gestor.registrarApunte(
-            "Responsabilidades de una clase", "2026-10-27", self.lecturaCRC["id"])
-        self.apunteClases = self.gestor.registrarApunte(
-            "Asociaciones y herencia", "2026-10-27", self.lecturaClases["id"])
+        self.gestor, self.registros, _ = crearGestorConBaseFalsa(self)
+        self.registros["lecturas"] = {
+            "crc": {"titulo": "Tarjetas CRC"}, "clases": {"titulo": "Diagrama de clases"}}
+        self.anterior = self.gestor.registrarApunte("Relaciones", "2026-10-20", "clases")
+        self.crc = self.gestor.registrarApunte("Responsabilidades", "2026-10-27", "crc")
+        self.clases = self.gestor.registrarApunte("Herencia", "2026-10-27", "clases")
 
     def testOrdenaPorFechaYLectura(self):
         apuntes = self.gestor.listarApuntes()
-
-        self.assertEqual(len(apuntes), 3)
-        self.assertEqual(apuntes[0]["id"], self.apunteClases["id"])
-        self.assertEqual(apuntes[1]["id"], self.apunteCRC["id"])
-        self.assertEqual(apuntes[2]["id"], self.anterior["id"])
-
-    def testOrdenaLasLecturasPorTitulo(self):
         lecturas = self.gestor.listarLecturas()
 
-        self.assertEqual(len(lecturas), 2)
-        self.assertEqual(lecturas[0]["titulo"], "Diagrama de clases")
-        self.assertEqual(lecturas[1]["titulo"], "Tarjetas CRC")
+        self.assertEqual([apunte["id"] for apunte in apuntes],
+                         [self.clases["id"], self.crc["id"], self.anterior["id"]])
+        self.assertEqual([lectura["titulo"] for lectura in lecturas],
+                         ["Diagrama de clases", "Tarjetas CRC"])
 
     def testFiltraPorFecha(self):
         apuntes = self.gestor.listarApuntes(fechaClase="2026-10-27")
-
-        self.assertEqual(len(apuntes), 2)
-        self.assertEqual(apuntes[0]["id"], self.apunteClases["id"])
-        self.assertEqual(apuntes[1]["id"], self.apunteCRC["id"])
+        self.assertEqual([apunte["id"] for apunte in apuntes],
+                         [self.clases["id"], self.crc["id"]])
 
     def testFiltraPorLectura(self):
-        apuntes = self.gestor.listarApuntes(idLectura=self.lecturaClases["id"])
-
-        self.assertEqual(len(apuntes), 2)
-        self.assertEqual(apuntes[0]["id"], self.apunteClases["id"])
-        self.assertEqual(apuntes[1]["id"], self.anterior["id"])
+        apuntes = self.gestor.listarApuntes(idLectura="clases")
+        self.assertEqual([apunte["id"] for apunte in apuntes],
+                         [self.clases["id"], self.anterior["id"]])
 
     def testCombinaFechaYLectura(self):
-        apuntes = self.gestor.listarApuntes(
-            fechaClase="2026-10-27", idLectura=self.lecturaClases["id"])
-
+        apuntes = self.gestor.listarApuntes(fechaClase="2026-10-27", idLectura="clases")
         self.assertEqual(len(apuntes), 1)
-        self.assertEqual(apuntes[0]["id"], self.apunteClases["id"])
+        self.assertEqual(apuntes[0]["id"], self.clases["id"])
 
-    def testNoMuestraApuntesSiNoCoincideLaFecha(self):
-        apuntes = self.gestor.listarApuntes(
-            fechaClase="2026-10-21", idLectura=self.lecturaClases["id"])
-
-        self.assertEqual(apuntes, [])
+    def testNoMuestraApuntesDeOtraFecha(self):
+        self.assertEqual(self.gestor.listarApuntes(fechaClase="2026-10-21"), [])
 
 
 if __name__ == "__main__":
