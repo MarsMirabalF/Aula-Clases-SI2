@@ -3,19 +3,17 @@ from datetime import date
 from Pruebas.PruebasPenalizaciones.BaseDatosFalsa import crearGestorConBaseFalsa
 
 
-class PruebaCriterio1MostrarDiaTarde(unittest.TestCase):
+class PruebaCriterio3NaceConEstadoPendiente(unittest.TestCase):
     def setUp(self):
         self.gestor = crearGestorConBaseFalsa(self)
 
-    def testMuestraElDiaQueLlegueTarde(self):
-        # Preparar: llego tarde un martes
+    def testUnaPenalizacionNuevaEstaPendiente(self):
+        # Preparar y ejecutar
         self.gestor.penalizacion.registrarLlegadaTarde(date(2026, 10, 27))
 
-        # Ejecutar
-        penalizacion = self.gestor.listarPenalizaciones()[0]
-
         # Comprobar
-        self.assertEqual(penalizacion["diaTarde"], "Martes")
+        penalizacion = self.gestor.listarPenalizaciones()[0]
+        self.assertEqual(penalizacion["estado"], "Pendiente")
 
 
 if __name__ == "__main__":
