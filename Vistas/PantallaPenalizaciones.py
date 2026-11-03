@@ -94,6 +94,22 @@ class PantallaPenalizaciones(tk.Toplevel):
         if not seleccion:
             self.mostrarEstado("Selecciona una penalización", COLOR_ERROR)
             return
-        self.gestorPenalizaciones.marcarComoCumplida(seleccion[0])
-        self.actualizarTabla()
+        idPenalizacion = seleccion[0]
+        self.gestorPenalizaciones.marcarComoCumplida(idPenalizacion)
+        valores = list(self.tablaPenalizaciones.item(idPenalizacion, "values"))
+        valores[2] = "-"
+        valores[3] = "● Cumplida"
+        self.tablaPenalizaciones.item(
+            idPenalizacion, values=valores, tags=("Cumplida",))
         self.mostrarEstado("Penalización marcada como cumplida", COLOR_PRIMARIO)
+source : El término 'source' no se reconoce como nombre de un cmdlet, 
+función, archivo de script o programa ejecutable. Compruebe si escribió 
+correctamente el nombre o, si incluyó una ruta de acceso, compruebe que 
+dicha ruta es correcta e inténtelo de nuevo.
+En línea: 1 Carácter: 1
++ source .venv/Scripts/activate
++ ~~~~~~
+    + CategoryInfo          : ObjectNotFound: (source:String) [], CommandN 
+   otFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
