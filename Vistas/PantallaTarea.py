@@ -1,4 +1,6 @@
 import tkinter as tk
+import calendar
+from datetime import date
 from tkinter import messagebox, ttk
 
 from estilos import *
@@ -35,10 +37,18 @@ class PantallaTarea(tk.Toplevel):
         self.marcoFormulario.pack(fill="x", padx=24, pady=(16, 8))
         self.campoNumero = self.crearCampo("Número", 0, 8)
         self.campoTema = self.crearCampo("Tema", 1, 28)
-        self.campoHoraLimite = self.crearCampo("Hora límite (AAAA-MM-DD HH:MM)", 2, 18)
+        self.campoFechaLimite = self.crearCampo("Fecha límite (AAAA-MM-DD)", 2, 12)
+        self.botonCalendario = self.crearBoton(
+            self.marcoFormulario, "Calendario", self.abrirCalendario)
+        self.botonCalendario.grid(row=1, column=3, padx=(0, 8), sticky="s")
+        self.campoHoraLimite = self.crearCampo("Hora límite (HH:MM)", 4, 7)
+        self.botonReloj = self.crearBoton(
+            self.marcoFormulario, "Reloj", self.abrirReloj)
+        self.botonReloj.grid(row=1, column=5, padx=(0, 8), sticky="s")
         self.botonRegistrar = self.crearBoton(self.marcoFormulario, "Registrar tarea",
                                               self.registrarTarea)
-        self.botonRegistrar.grid(row=1, column=3, padx=(8, 0), sticky="s")
+        self.botonRegistrar.grid(row=2, column=0, columnspan=7,
+                                 padx=(0, 0), pady=(10, 0), sticky="w")
 
         self.marcoTabla = tk.Frame(self, bg=COLOR_FONDO, highlightthickness=1,
                                    highlightbackground=COLOR_ACENTO)
@@ -116,6 +126,109 @@ class PantallaTarea(tk.Toplevel):
     def mostrarEstado(self, texto, color):
         self.etiquetaEstado.config(text=texto, fg=color)
 
+    def abrirCalendario(self):
+        ventana = tk.Toplevel(self)
+        ventana.title("Seleccionar fecha")
+        ventana.configure(bg=COLOR_FONDO)
+        ventana.resizable(False, False)
+
+        fechaActual = date.today()
+        try:
+            fechaActual = date.fromisoformat(self.campoFechaLimite.get())
+        except ValueError:
+            pass
+        ano = fechaActual.year
+        mes = fechaActual.month
+
+        encabezado = tk.Frame(ventana, bg=COLOR_FONDO)
+        encabezado.pack(padx=12, pady=12)
+        marcoDias = tk.Frame(ventana, bg=COLOR_FONDO)
+        marcoDias.pack(padx=12, pady=(0, 12))
+
+        etiquetaMes = tk.Label(encabezado, font=FUENTE_BOTON,
+                               bg=COLOR_FONDO, fg=COLOR_PRIMARIO, width=16)
+        etiquetaMes.pack(side="left", padx=8)
+
+        def cambiarMes(cambio):
+            nonlocal ano, mes
+            mes += cambio
+            if mes == 13:
+                mes, ano = 1, ano + 1
+            elif mes == 0:
+                mes, ano = 12, ano - 1
+            mostrarMes()
+
+        tk.Button(encabezado, text="<", command=lambda: cambiarMes(-1),
+                  font=FUENTE_BOTON, bg=COLOR_PRIMARIO, fg=COLOR_FONDO,
+                  relief="flat", padx=8).pack(side="left")
+        tk.Button(encabezado, text=">", command=lambda: cambiarMes(1),
+                  font=FUENTE_BOTON, bg=COLOR_PRIMARIO, fg=COLOR_FONDO,
+                  relief="flat", padx=8).pack(side="right")
+
+        def seleccionarDia(dia):
+            self.campoFechaLimite.delete(0, "end")
+            self.campoFechaLimite.insert(0, f"{ano:04d}-{mes:02d}-{dia:02d}")
+            ventana.destroy()
+
+        def mostrarMes():
+            for widget in marcoDias.winfo_children():
+                widget.destroy()
+            etiquetaMes.config(text=f"{calendar.month_name[mes]} {ano}")
+            for columna, nombre in enumerate(("Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do")):
+                tk.Label(marcoDias, text=nombre, font=FUENTE_ESTADO,
+                         bg=COLOR_FONDO, fg=COLOR_SECUNDARIO,
+                         width=4).grid(row=0, column=columna, pady=4)
+            for fila, semana in enumerate(calendar.monthcalendar(ano, mes), start=1):
+                for columna, dia in enumerate(semana):
+                    if dia:
+                        tk.Button(
+                            marcoDias, text=str(dia), command=lambda d=dia: seleccionarDia(d),
+                            font=FUENTE_NORMAL, bg=COLOR_PRIMARIO, fg=COLOR_FONDO,
+                            activebackground=COLOR_SECUNDARIO, relief="flat", width=3,
+                            padx=2, pady=2).grid(row=fila, column=columna, padx=2, pady=2)
+
+        mostrarMes()
+
+    def abrirReloj(self):
+        ventana = tk.Toplevel(self)
+        ventana.title("Seleccionar hora")
+        ventana.configure(bg=COLOR_FONDO)
+        ventana.resizable(False, False)
+
+        horaInicial, minutoInicial = 0, 0
+        try:
+            horaInicial, minutoInicial = map(int, self.campoHoraLimite.get().split(":"))
+        except (ValueError, AttributeError):
+            pass
+
+        marco = tk.Frame(ventana, bg=COLOR_FONDO)
+        marco.pack(padx=20, pady=20)
+        tk.Label(marco, text="Hora", font=FUENTE_ESTADO,
+                 bg=COLOR_FONDO, fg=COLOR_SECUNDARIO).grid(row=0, column=0, padx=4)
+        tk.Label(marco, text="Minutos", font=FUENTE_ESTADO,
+                 bg=COLOR_FONDO, fg=COLOR_SECUNDARIO).grid(row=0, column=1, padx=4)
+        campoHora = tk.Spinbox(marco, from_=0, to=23, width=4, format="%02.0f",
+                               font=FUENTE_NORMAL, justify="center")
+        campoHora.delete(0, "end")
+        campoHora.insert(0, f"{horaInicial:02d}")
+        campoHora.grid(row=1, column=0, padx=4, pady=8)
+        campoMinuto = tk.Spinbox(marco, from_=0, to=59, width=4, format="%02.0f",
+                                 font=FUENTE_NORMAL, justify="center")
+        campoMinuto.delete(0, "end")
+        campoMinuto.insert(0, f"{minutoInicial:02d}")
+        campoMinuto.grid(row=1, column=1, padx=4, pady=8)
+
+        def seleccionarHora():
+            self.campoHoraLimite.delete(0, "end")
+            self.campoHoraLimite.insert(
+                0, f"{int(campoHora.get()):02d}:{int(campoMinuto.get()):02d}")
+            ventana.destroy()
+
+        tk.Button(ventana, text="Aceptar", command=seleccionarHora,
+                  font=FUENTE_BOTON, bg=COLOR_PRIMARIO, fg=COLOR_FONDO,
+                  activebackground=COLOR_SECUNDARIO, relief="flat",
+                  padx=16, pady=8).pack(pady=(0, 16))
+
     def formatearTiempoRestante(self, tarea):
         if tarea.estaAtrasada():
             return "Atrasada"
@@ -145,12 +258,14 @@ class PantallaTarea(tk.Toplevel):
 
     def registrarTarea(self):
         try:
-            tarea = Tarea(self.campoNumero.get(), self.campoTema.get(), self.campoHoraLimite.get())
+            fechaHoraLimite = self.campoFechaLimite.get() + " " + self.campoHoraLimite.get()
+            tarea = Tarea(self.campoNumero.get(), self.campoTema.get(), fechaHoraLimite)
             tarea.guardar()
         except ValueError as error:
             self.mostrarEstado(str(error), COLOR_ERROR)
             return
-        for campo in (self.campoNumero, self.campoTema, self.campoHoraLimite):
+        for campo in (self.campoNumero, self.campoTema,
+                      self.campoFechaLimite, self.campoHoraLimite):
             campo.delete(0, "end")
         self.mostrarTareas()
         self.mostrarEstado("Tarea " + str(tarea.numero) + " registrada", COLOR_PRIMARIO)
