@@ -10,7 +10,7 @@ class GestorPenalizaciones:
         self.penalizacion = Penalizacion(self.horarioClases)
 
     def registrarLlegadaTarde(self):
-        self.penalizacion.registrarLlegadaTarde(date.today())
+        return self.penalizacion.registrarLlegadaTarde(date.today())
 
     def marcarComoCumplida(self, idPenalizacion):
         self.penalizacion.marcarComoCumplida(idPenalizacion)
@@ -27,10 +27,14 @@ class GestorPenalizaciones:
                 "diaTarde": self.horarioClases.obtenerNombreDia(fechaTarde),
                 "fechaTarde": fechaTarde.isoformat(),
                 "proximaClase": (self.horarioClases.obtenerNombreDia(fechaProximaClase)
-                                + " " + fechaProximaClase.isoformat()) if pendiente else "-",
+                                 + " " + fechaProximaClase.isoformat()) if pendiente else "-",
                 "estado": registro["estado"]
             })
         return sorted(lista, key=lambda penalizacion: penalizacion["fechaTarde"])
 
     def contarLlegadasTarde(self):
         return len(self.listarPenalizaciones())
+
+    def contarPendientes(self):
+        return len([penalizacion for penalizacion in self.listarPenalizaciones()
+                    if penalizacion["estado"] == "Pendiente"])

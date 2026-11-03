@@ -10,6 +10,9 @@ class HorarioClases:
     def obtenerDiasClase(self):
         return [NOMBRES_DIAS[dia] for dia in DIAS_CLASE]
 
+    def esDiaDeClase(self, fecha):
+        return fecha.weekday() in DIAS_CLASE
+
     def calcularProximaClase(self, fecha):
         proximaFecha = fecha + timedelta(days=1)
         while proximaFecha.weekday() not in DIAS_CLASE:
