@@ -79,7 +79,8 @@ class PantallaPenalizaciones(tk.Toplevel):
                         penalizacion["proximaClase"], "● " + penalizacion["estado"]),
                 tags=(penalizacion["estado"],))
         self.etiquetaContador.config(
-            text="Veces que he llegado tarde: " + str(self.gestorPenalizaciones.contarLlegadasTarde()))
+            text="Veces que he llegado tarde: " + str(self.gestorPenalizaciones.contarLlegadasTarde())
+     + "   |   Pendientes: " + str(self.gestorPenalizaciones.contarPendientes()))
 
     def mostrarEstado(self, texto, color):
         self.etiquetaEstado.config(text=texto, fg=color)
@@ -90,7 +91,7 @@ class PantallaPenalizaciones(tk.Toplevel):
             self.mostrarEstado("Llegada tarde registrada", COLOR_PRIMARIO)
         else:
             self.mostrarEstado("Hoy no hay clase, no se registra", COLOR_ERROR)
-            
+
     def marcarComoCumplida(self):
         seleccion = self.tablaPenalizaciones.selection()
         if not seleccion:
