@@ -85,10 +85,12 @@ class PantallaPenalizaciones(tk.Toplevel):
         self.etiquetaEstado.config(text=texto, fg=color)
 
     def registrarLlegadaTarde(self):
-        self.gestorPenalizaciones.registrarLlegadaTarde()
-        self.actualizarTabla()
-        self.mostrarEstado("Llegada tarde registrada", COLOR_PRIMARIO)
-
+        if self.gestorPenalizaciones.registrarLlegadaTarde():
+            self.actualizarTabla()
+            self.mostrarEstado("Llegada tarde registrada", COLOR_PRIMARIO)
+        else:
+            self.mostrarEstado("Hoy no hay clase, no se registra", COLOR_ERROR)
+            
     def marcarComoCumplida(self):
         seleccion = self.tablaPenalizaciones.selection()
         if not seleccion:
